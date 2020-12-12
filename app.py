@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy 
 from flask_admin import Admin 
 from flask_login import UserMixin, LoginManager, login_user,login_required, logout_user
@@ -139,21 +139,23 @@ def login():
     return render_template('login.html')
     
 @app.route('/login', methods = ['POST'])
-def login():
+def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
     
     checkme = True if request.form.get('checkme') else False
 
     user = User.query.filter_by(email = email).first()
-    login_user(user)
+    #login_user(user, checkme =checkme)
 
     if not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('login'))
+#if user is active and user is valid
+    if user and user.is_active:
 
-    #login_user(user, checkme=checkme)
-    return redirect(url_for('folio'))
+        login_user(user)
+        return redirect(url_for('folio'))
 
 @app.route('/folio')
 @login_required
