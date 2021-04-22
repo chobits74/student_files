@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['FLASK_ADMIN_SWATCH'] = 'United'
 app.config['SECRET_KEY'] = "secret Admirer"
-
+#app.config['USER_ENABLE_EMAIL'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///student_file.sqlite'
 
@@ -119,7 +119,7 @@ class UserView(ModelView):
         model.password = generate_password_hash(model.password, method='sha256')
 
     def is_accessible(self):
-        return  not current_user.is_authenticated
+        return   current_user.is_authenticated
 
 class MyFileView(ModelView):
     def is_accessible(self):
@@ -139,6 +139,7 @@ def login():
     return render_template('login.html')
     
 @app.route('/login', methods = ['POST'])
+
 def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
@@ -147,20 +148,25 @@ def login_post():
 
     user = User.query.filter_by(email = email).first()
     #login_user(user, checkme =checkme)
+    #role_user = User.query.filter(Role.id==1)
+
+    #roleU = UserRoles.query.filter_by(role_id=role_id).first()
+
 
     if not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('login'))
 #if user is active and user is valid
-    if user and user.is_active:
-
+    #if user and user.is_active:
+    if user :
         login_user(user)
         return redirect(url_for('folio'))
 
 @app.route('/folio')
 @login_required
 def folio():
-    return render_template('folio.html',first_name = current_user.first_name )
+    #return render_template('folio.html',first_name = current_user.first_name )
+    return redirect("/admin")
 
 @app.route('/logout')
 @login_required
